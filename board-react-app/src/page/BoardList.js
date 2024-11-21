@@ -14,11 +14,22 @@ const BoardList = () => {
 
   const navigate = useNavigate(); // navigate 객체 생성
 
+  //백엔드연결
+  const getBoardList = async() => {
+    try {
+      const response = await axios.get('http://localhost:8081/api/board/all')
+      console.log('response.data')
+      setBoardList(boardList)
+    } catch (error) {
+      
+    }
+  }
 
   //데이터를 다 불러오기
   useEffect(()=>{
-    setBoardList(boardList)
-    setTotalPages(Math.ceil(boardList.length/postsPerPage)) // 총페이지 수 계산
+    getBoardList()
+    //setBoardList(boardList)
+    //setTotalPages(Math.ceil(boardList.length/postsPerPage)) // 총페이지 수 계산
   },[postsPerPage,boardList])
   
   //현재 페이지에서 보여줄 게시글의 마지막 인덱스 계산
