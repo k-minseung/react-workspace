@@ -6,6 +6,8 @@ import React, {useState, useEffect, useContext} from "react"
 import { BoardContext } from "../context/BoardContext"
 import { useParams,useNavigate } from "react-router-dom"
 import CustomButton from "../components/CustomButton"
+import axios from "axios"
+
 
 const PostDetail = () => {
     //BoardList에서 전달한 id를 받아온다.
@@ -18,29 +20,51 @@ const PostDetail = () => {
 
     const [board, setBoard] = useState({});
 
+    
+
     useEffect(()=>{
-        //배열에 들어있는 게시글들 중 파라미터로 전달받은 id와 일치하는
-        //게시글 한 건 찾기
-        const post = boardList.find((item) => item.id === parseInt(id));
-        if(post) {
-            setBoard(post); //찾은 게시물을 state에 저장
-        } else{
-            alert("게시글을 찾을 수 없습니다.");
+        // //배열에 들어있는 게시글들 중 파라미터로 전달받은 id와 일치하는
+        // //게시글 한 건 찾기
+        // const post = boardList.find((item) => item.id === parseInt(id));
+        // if(post) {
+        //     setBoard(post); //찾은 게시물을 state에 저장
+        // } else{
+        //     alert("게시글을 찾을 수 없습니다.");
+        // }
+        
+        //서버에 요청해서 한건의 데이터 가져오기
+        const getBoardData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:9099/api/board/get/${id}`);
+                setBoard(response.data.data[0]);
+            } catch (error) {
+                console.log('Error fetching data:',error)
+            }
         }
-    },[id])
+        
+       getBoardData();
+
+    },[])
+    
+    
 
     const moveToBoard = () => {
         navigate("/");
     }
 
-    const handleDelete = () => {
+    const handleDelete = async() => {
         if(window.confirm("게시글을 삭제하시겠습니까?")){
             //게시글들이 들어있는 배열에서 id에 해당하는 게시글만 빼고 다시
             //배열로 만들어야됨
-            setBoardList((prevList) => prevList.filter((post)=> post.id !== parseInt(id)));
-            alert("삭제되었습니다.")
-            navigate("/");
-        }
+            // setBoardList((prevList) => prevList.filter((post)=> post.id !== parseInt(id)));
+            const response = await axios.delete(`http://localhost:9099/api/board/delete/${id}`);
+            if(response.data) {
+                alert("삭제되었습니다.")   
+                navigate("/");
+            } else {
+                alert('삭제 실패')
+            }
+        }           
     }
 
     const moveToEdit = () => {
